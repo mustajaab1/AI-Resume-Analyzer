@@ -6,8 +6,10 @@ import { Brain, FileText, AlertTriangle, Check, X, Download } from 'lucide-react
 const Analyzer = () => {
     const [analysisData, setAnalysisData] = useState(null);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
     const location = useLocation();
     const file = location.state?.file;
+    const analysisType = location.state?.type || 'deep';
 
     useEffect(() => {
         if (!file) {
@@ -19,6 +21,7 @@ const Analyzer = () => {
         const analyzeFile = async () => {
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('type', analysisType);
 
             try {
                 const response = await fetch('/api/analyze', {
@@ -78,23 +81,44 @@ const Analyzer = () => {
         );
     }
 
-    const { score, summary, detected_keywords, recommended_keywords, formatting_issues } = analysisData || {};
+    const {
+        score = 0,
+        job_title = "General",
+        summary = "No summary available.",
+        detected_keywords = [],
+        missing_skills = [],
+        recommended_keywords = [],
+        learning_resources = {},
+        detailed_feedback = [],
+        validation = {}
+    } = analysisData || {};
+
+    // Use missing_skills if available, otherwise recommended_keywords
+    const missing = missing_skills.length > 0 ? missing_skills : recommended_keywords;
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-6"
-        >
+        <div className="space-y-6 animate-fade-in">
             <header className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold">Analysis Report</h1>
-                    <p className="text-gray-400 text-sm">Target: General Match</p>
+                    <p className="text-gray-400 text-sm">Target Role: <span className="text-primary font-medium">{job_title}</span></p>
                 </div>
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-dark-800 rounded-lg hover:bg-dark-700 border border-white/10 transition-colors">
                     <Download size={16} /> Export PDF
                 </button>
             </header>
+
+            {validation?.is_valid === false && (
+                <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200">
+                    <div className="flex items-center gap-2 font-semibold mb-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        <span>Resume Validation Warning</span>
+                    </div>
+                    <ul className="list-disc pl-5 text-sm space-y-1">
+                        {validation.issues?.map((issue, idx) => <li key={idx}>{issue}</li>)}
+                    </ul>
+                </div>
+            )}
 
             {/* Top Row: Score & Summary */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -114,14 +138,14 @@ const Analyzer = () => {
                                 stroke={score > 70 ? "#22c55e" : score > 40 ? "#eab308" : "#ef4444"}
                                 strokeWidth="10"
                                 strokeDasharray="283"
-                                strokeDashoffset={283 - (283 * score) / 100}
+                                strokeDashoffset={isNaN(score) ? 283 : 283 - (283 * score) / 100}
                                 strokeLinecap="round"
                                 className={`drop-shadow-[0_0_10px_rgba(${score > 70 ? "34,197,94" : score > 40 ? "234,179,8" : "239,68,68"},0.5)]`}
                             />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-4xl font-bold">{score}</span>
-                            <span className="text-xs text-gray-400 uppercase tracking-widest mt-1">Score</span>
+                            <span className="text-xs text-gray-400 uppercase tracking-widest mt-1">Match Score</span>
                         </div>
                     </div>
                 </div>
@@ -130,7 +154,7 @@ const Analyzer = () => {
                 <div className="glass-card p-6 rounded-2xl lg:col-span-2 space-y-4">
                     <div className="flex items-center gap-2 mb-4">
                         <FileText className="text-primary" size={20} />
-                        <h3 className="text-lg font-semibold">Summary</h3>
+                        <h3 className="text-lg font-semibold">Executive Summary</h3>
                     </div>
                     <p className="text-gray-300 leading-relaxed">
                         {summary}
@@ -138,48 +162,77 @@ const Analyzer = () => {
                 </div>
             </div>
 
-            {/* Bottom Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+            {/* Keyword Analysis Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Detected Keywords */}
                 <div className="glass-card p-6 rounded-2xl">
-                    <h3 className="text-lg font-semibold mb-4 text-blue-400">Detected Keywords & Skills</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Check className="text-green-400" size={20} />
+                        <h3 className="text-lg font-semibold text-green-400">Your Skills</h3>
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                        {detected_keywords && detected_keywords.map(tag => (
-                            <span key={tag} className="px-3 py-1 rounded-full text-sm bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                        {Array.isArray(detected_keywords) && detected_keywords.map(tag => (
+                            <span key={tag} className="px-3 py-1 rounded-full text-sm bg-green-500/10 text-green-300 border border-green-500/20">
                                 {tag}
                             </span>
                         ))}
                     </div>
                 </div>
 
-                {/* Recommended Keywords */}
+                {/* Missing Skills / Skill Gap */}
                 <div className="glass-card p-6 rounded-2xl">
-                    <h3 className="text-lg font-semibold mb-4 text-orange-400">Recommended / Missing</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                        <AlertTriangle className="text-orange-400" size={20} />
+                        <h3 className="text-lg font-semibold text-orange-400">Missing Skills (Skill Gap)</h3>
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                        {recommended_keywords && recommended_keywords.map(tag => (
+                        {Array.isArray(missing) && missing.map(tag => (
                             <span key={tag} className="px-3 py-1 rounded-full text-sm bg-orange-500/10 text-orange-300 border border-orange-500/20 dashed-border">
                                 {tag}
                             </span>
                         ))}
                     </div>
                 </div>
+            </div>
 
-                {/* Critical Formatting */}
+            {/* Detailed Feedback & Learning Resources Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Detailed Feedback */}
                 <div className="glass-card p-6 rounded-2xl">
-                    <h3 className="text-lg font-semibold mb-4 text-red-400">Critical Issues</h3>
-                    <ul className="space-y-3">
-                        {formatting_issues && formatting_issues.map((issue, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-sm text-gray-300">
-                                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                                {issue}
-                            </li>
-                        ))}
+                    <h3 className="text-lg font-semibold mb-4 text-blue-400">Detailed Resume Feedback</h3>
+                    <ul className="space-y-4">
+                        {Array.isArray(detailed_feedback) && detailed_feedback.length > 0 ? (
+                            detailed_feedback.map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-3 text-sm text-gray-300 bg-dark-800/50 p-3 rounded-lg">
+                                    <div className="mt-1">👉</div>
+                                    <span>{item}</span>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="text-gray-500 italic">No specific feedback generated.</li>
+                        )}
                     </ul>
                 </div>
 
+                {/* Learning Resources / Career Advisor */}
+                <div className="glass-card p-6 rounded-2xl">
+                    <h3 className="text-lg font-semibold mb-4 text-purple-400">Recommended Learning Paths</h3>
+                    <div className="space-y-4">
+                        {learning_resources && Object.keys(learning_resources).length > 0 ? (
+                            Object.entries(learning_resources).map(([skill, resource], idx) => (
+                                <div key={idx} className="bg-dark-800/50 p-4 rounded-lg border border-white/5">
+                                    <h4 className="font-semibold text-purple-200 capitalize mb-1">{skill}</h4>
+                                    <p className="text-sm text-gray-400">{resource}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-500 italic">No specific resources found for missing skills.</p>
+                        )}
+                    </div>
+                </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

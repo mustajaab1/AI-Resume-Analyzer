@@ -25,7 +25,7 @@ const Layout = () => {
                             <FileText size={24} />
                         </div>
                         <span className="font-bold text-xl tracking-tight text-white group-hover:text-primary-glow transition-colors">
-                            AI Resume Architect
+                            AI Resume Analyzer
                         </span>
                     </Link>
 

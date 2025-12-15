@@ -7,6 +7,7 @@ const Home = () => {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [analysisType, setAnalysisType] = useState('deep');
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -39,7 +40,7 @@ const Home = () => {
 
     const handleFile = (file) => {
         console.log("File selected:", file.name);
-        navigate('/analyze', { state: { file: file } });
+        navigate('/analyze', { state: { file: file, type: analysisType } });
     };
 
     return (
@@ -61,6 +62,28 @@ const Home = () => {
                 </p>
 
                 <div className="pt-8">
+                    {/* Analysis Mode Toggle */}
+                    <div className="flex justify-center mb-6 gap-4">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setAnalysisType('general'); }}
+                            className={`px-6 py-2 rounded-full font-medium transition-all ${analysisType === 'general'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                                : 'bg-dark-800 text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                        >
+                            General Analysis (TF-IDF)
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setAnalysisType('deep'); }}
+                            className={`px-6 py-2 rounded-full font-medium transition-all ${analysisType === 'deep'
+                                ? 'bg-secondary text-white shadow-lg shadow-secondary/25'
+                                : 'bg-dark-800 text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                        >
+                            Deep Analysis (BERT + SBERT)
+                        </button>
+                    </div>
+
                     <div
                         onClick={handleFileClick}
                         onDragOver={handleDragOver}

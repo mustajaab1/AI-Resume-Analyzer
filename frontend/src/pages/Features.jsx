@@ -4,20 +4,20 @@ import { Scan, Database, BarChart3, Lock } from 'lucide-react';
 const Features = () => {
     const features = [
         {
-            title: "ATS Simulation Engine",
-            desc: "Our engine mimics real-world ATS algorithms to ensure your resume gets past the bots and into human hands.",
+            title: "Dual-Engine Analysis",
+            desc: "Choose between fast Keyword Matching (TF-IDF) or Deep Semantic Understanding (BERT + SBERT) for precise results.",
             icon: Scan,
             color: "text-blue-400"
         },
         {
-            title: "NLP Keyword Extraction",
-            desc: "Advanced Natural Language Processing identifies the crucial skills and keywords missing from your profile.",
+            title: "Contextual Skill Matching",
+            desc: "Beyond simple keyword spotting. Our Deep Analyzer understands the *context* of your skills using Sentence Transformers.",
             icon: Database,
             color: "text-purple-400"
         },
         {
-            title: "Scoring & Benchmarking",
-            desc: "Get a quantifiable score against industry standards and see exactly where you stand.",
+            title: "Career & Gap Analysis",
+            desc: "Identify exactly which skills you lack for your target role and get curated learning resources to bridge the gap.",
             icon: BarChart3,
             color: "text-emerald-400"
         },

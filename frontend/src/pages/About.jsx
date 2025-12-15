@@ -13,13 +13,13 @@ const About = () => {
                             talented candidates and their dream jobs.
                         </p>
                         <p>
-                            This project leverages state-of-the-art Natural Language Processing models to analyze
-                            resumes just like a recruiter or an ATS would. By extracting keywords, analyzing sentiment,
-                            and checking formatting compliance, we provide actionable insights to improve your hiralibity.
+                            This project leverages state-of-the-art Deep Learning models (BERT & SBERT) alongside traditional NLP (TF-IDF)
+                            to provide a comprehensive analysis. It doesn't just match keywords; it understands context,
+                            identifies skill gaps, and provides curated learning resources to help you upskill.
                         </p>
                         <p>
                             We believe every candidate deserves a fair chance. Our goal is to democratize
-                            access to professional resume insights.
+                            access to professional resume insights using the latest in AI technology.
                         </p>
                     </div>
                 </div>
@@ -33,15 +33,15 @@ const About = () => {
                         </li>
                         <li className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                            Backend: Python (FastAPI/Streamlit)
+                            Backend: Python (Flask)
                         </li>
                         <li className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                            AI/ML: Spacy, NLTK, Scikit-learn
+                            AI/ML: BERT, SBERT, TF-IDF, Scikit-learn
                         </li>
                         <li className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                            Deployment: Docker & Cloud Containers
+                            Deployment: Cloud Ready (Docker support)
                         </li>
                     </ul>
                 </div>
