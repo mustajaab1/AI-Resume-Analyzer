@@ -1,0 +1,10 @@
+scikit-learn>=1.0
+numpy>=1.21
+pandas
+streamlit
+sentence-transformers>=2.2.2 
+faiss-cpu  
+flask
+PyPDF2>=3.0.0
+transformers>=4.30.0
+torch>=2.0.0
